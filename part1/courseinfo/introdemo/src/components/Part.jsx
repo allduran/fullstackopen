@@ -1,9 +1,9 @@
-const Part = (props) => {
+const Part = ({ name, exercises }) => {
     return (
-        <p>
-            {props.part} {props.exercises}
-        </p>
-    )
-}
+      <p>
+        {name} {exercises}
+      </p>
+    );
+  };
 
 export default Part
