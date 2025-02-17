@@ -4,16 +4,24 @@ import Filter from "./components/Filter";
 import PersonForm from "./components/PersonForm";
 import Persons from "./components/Persons";
 import personService from "./services/persons";
+import Notification from "./components/Notification";
 
 const App = () => {
   const [persons, setPersons] = useState([]);
   const [newName, setNewName] = useState("enter name");
   const [newNumber, setNewNumber] = useState("enter number");
   const [searchName, setSearchName] = useState("");
+  const [notification, setNotification] = useState(null);
 
   useEffect(() => {
     personService.getAll().then((initialPersons) => {
       setPersons(initialPersons);
+    }).
+    catch(error => {
+      setNotification({
+        text: `Information of ${newName} has already been removed from the server.`,
+        type: "error"
+      });
     });
   }, []);
 
@@ -34,15 +42,30 @@ const App = () => {
           setPersons(persons.map(person => person.id !== existingPerson.id ? person : returnedPerson));
           setNewName("");
           setNewNumber("");
+
+          setNotification({
+            text: `${returnedPerson.name} has been updated to the phonebook.`,
+            type: "success"
+          })
         });
       }
     } else {
       personService.create(nameObject).then((returnedPerson) => {
         setPersons(persons.concat(returnedPerson));
+
         setNewName("");
         setNewNumber("");
+
+        setNotification({
+          text: `${returnedPerson.name} has been added to the phonebook.`,
+          type: "success"
+        });
       });
     }
+
+    setTimeout(() => {
+      setNotification(null);
+    }, 5000);
   };
 
   const removePerson = (id) => {
@@ -76,6 +99,9 @@ const App = () => {
       <h2>Phonebook</h2>
       {/* Search input */}
       <Filter filter={searchName} handleFilterChange={handleSearchChange} />
+
+      {/* Notification */}
+      <Notification message={notification} />
 
       {/* Add person form */}
       <h3>Add a new</h3>
